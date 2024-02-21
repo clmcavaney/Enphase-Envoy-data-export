@@ -14,7 +14,7 @@ Outputs can be:
 - MySQL
 - PVOutput
 
-**Note** The MQTT output requires an additional library (which has been included) called `enphase_envoy_homie`.  This is an implementation of MQTT Device under the Homie IoT convention (see https://homieiot.github.io/ for more details).
+**Note:** The MQTT output requires an additional library (which has been included) called `enphase_envoy_homie`.  This is an implementation of MQTT Device under the Homie IoT convention (see https://homieiot.github.io/ for more details).
 
 
 ## Acknowledgements
@@ -22,3 +22,6 @@ Outputs can be:
 Wouter (https://github.com/Woutrrr) for https://github.com/Woutrrr/Omnik-Data-Logger
 
 Will Hart (https://gist.github.com/will-hart | https://willhart.io/) for the Python Plugin Class - https://gist.github.com/will-hart/5899567
+
+Ian Mills (https://github.com/vk2him) for the Envoy login/token logic for the newer firmware of these devices - https://github.com/vk2him/Enphase-Envoy-mqtt-json
+
