@@ -95,6 +95,9 @@ class EnphaseEnvoyDataExport(object):
         logging.config.dictConfig(log_dict)
         self.logger = logging.getLogger('EnphaseEnvoyDataLogger')
 
+    def override_config(self, section, option, value):
+        self.config.set(section, option, value)
+
     @staticmethod
     def __expand_path(path):
         # Expand relative path to absolute path
