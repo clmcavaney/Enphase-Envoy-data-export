@@ -5,7 +5,7 @@ A Python app to extract data from a local Enphase Envoy system and output that d
 
 ## Description
 
-A fork (or sorts) of Omnik-Data-Logger (https://github.com/clmcavaney/Omnik-Data-Logger.git) to get data from a local Enphase Envoy device and log it to one or more outputs.
+A fork (or sorts) of Omnik-Data-Logger (https://github.com/clmcavaney/Omnik-Data-Logger.git) to get data from a local Enphase Envoy device and log it to one or more outputs.  This version has been created to get data from an Enphase Envoy instead of an Omniksol Solar inverter.
 
 Outputs can be:
 - Console
@@ -13,6 +13,8 @@ Outputs can be:
 - MQTT
 - MySQL
 - PVOutput
+
+**Note** The MQTT output requires an additional library (which has been included) called `enphase_envoy_homie`.  This is an implementation of MQTT Device under the Homie IoT convention (see https://homieiot.github.io/ for more details).
 
 
 ## Acknowledgements
