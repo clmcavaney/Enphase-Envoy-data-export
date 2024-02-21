@@ -218,7 +218,7 @@ class EnphaseEnvoy:
             resp = requests.get(f'https://{self.__envoy_host}/production.json', timeout=(self.__connection_timeout, self.__read_timeout), verify=False, headers=self.__authorisation_header)
         except Exception as error:
             print('{}: request to Envoy failed for production data'.format(self.__class__.__name__))
-            print('{}: {} - {}'.format(type(error).__name__, error))
+            print('{}: {} - {}'.format(self.__class__.__name__, type(error).__name__, error))
             sys.exit(1)
 
 
