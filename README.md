@@ -23,7 +23,8 @@ Outputs can be:
 
 1. Clone this repository
 ```
-git clone https://github.com/clmcavaney/Enphase-Envoy-data-export.git
+$ git clone https://github.com/clmcavaney/Enphase-Envoy-data-export.git
+$ cd Enphase-Envoy-data-export
 ```
 
 2. Copy the config example to `enphase-envoy.conf`
