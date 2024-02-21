@@ -6,6 +6,7 @@ import sys
 import os
 import requests
 import datetime
+import jwt
 
 # need to decide on where to save the token data - /tmp (i.e. empemerally) or a /var location (/var/cache or /home/<username>/var/cache)
 # lets use data/token.txt and look to move it later
@@ -135,68 +136,86 @@ class EnphaseEnvoy:
     def __obtain_token(self, refresh = False):
         # check for an existing token file
         if not os.path.exists(self.__token_file) or refresh is True:
-            # login first
-            data = {'user[email]': self.__enlighten_username, 'user[password]': self.__enlighten_password}
-            self.__logger.debug('{}:__obtain_token(): data == {}'.format(self.__class__.__name__, data))
-            self.__logger.debug('{}:__obtain_token(): url == {}'.format(self.__class__.__name__, self.__enlighten_login_url))
-            try:
-                resp = requests.post(self.__enlighten_login_url, data=data)
-            except Exception as error:
-                print('{}: request to Enphase Enlighten failed for login'.format(self.__class__.__name__))
-                print('{}: error {}'.format(self.__class__.__name__, resp.text))
-                print('{}: {} - {}'.format(type(error).__name__, error))
-                sys.exit(1)
+            self.__logger.debug('{}: no token file found or refresh forced'.format(self.__class__.__name__))
 
-            self.__logger.debug('{}: response {}'.format(self.__class__.__name__, resp.text))
-            resp_data = resp.json()
-
-            self.__logger.debug('resp_data == {}'.format(resp_data))
-
-            # get token second
-            data = {'session_id': resp_data['session_id'], 'serial_num': self.__envoy_serial_number, 'username': self.__enlighten_username}
-            self.__logger.debug('{}:__obtain_token(): data == {}'.format(self.__class__.__name__, data))
-            try:
-                resp = requests.post(self.__entrez_url, json=data)
-            except Exception as error:
-                print('{}: request to Entrez failed for token'.format(self.__class__.__name__))
-                print('{}: {} - {}'.format(type(error).__name__, error))
-                sys.exit(1)
-
-            self.__logger.debug('resp.ok == {}'.format(resp.ok))
-            self.__logger.debug('resp.status_code == {}'.format(resp.status_code))
-            self.__logger.debug('token generated {}'.format(resp.text))
-
-            self.__token = resp.text
-
-            # store the token in a file to use next time
-            with open(self.__token_file, 'w') as ofp:
-                ofp.write(self.__token)
-
+            self.__token = self.__obtain_new_token()
         else:
             self.__logger.debug('{}: token file found, using that token'.format(self.__class__.__name__))
                 
             # should really try to validate the contents before blindly reading in the token
             if os.stat(self.__token_file).st_size == 428:
                 with open(self.__token_file, 'r') as ifp:
-                    self.__token = ifp.read()
+                    _token_encoded = ifp.read()
+
+                try:
+                    _token_decoded = jwt.decode(_token_encoded, algorithms=['ES256'], options={'verify_signature': False, 'verify_exp': True})
+                except jwt.exceptions.DecodeError as error:
+                    print('{}: token was unable to be decoded - {}'.format(self.__class__.__name__, error))
+                    sys.exit(1)
+
+                # check that the token hasn't expired
+                needs_renewal = False
+                try:
+                    payload: dict[str, Any] = _token_decoded
+                    exp: datetime = datetime.datetime.fromtimestamp(int(payload['exp']))
+                    # if the expiry date is within 30 days, then renew the token
+                    needs_renewal = datetime.datetime.now() > exp - datetime.timedelta(days=30)
+                except jwt.exceptions.DecodeError as error:
+                    print('{}: token was unable to be decoded - {}'.format(self.__class__.__name__, error))
+                    sys.exit(1)
+
+                if needs_renewal is True:
+                    self.__token = self.__obtain_new_token()
+                else:
+                    self.__token = _token_encoded
             else:
                 print('{}: token file doesn\'t look correct'.format(self.__class__.__name__))
                 sys.exit(1)
 
+        # Update the authorisation header with the new token
         self.__authorisation_header = {'Authorization': 'Bearer {}'.format(self.__token)}
+
+    def __obtain_new_token(self):
+        # login first
+        data = {'user[email]': self.__enlighten_username, 'user[password]': self.__enlighten_password}
+        self.__logger.debug('{}:__obtain_token(): data == {}'.format(self.__class__.__name__, data))
+        self.__logger.debug('{}:__obtain_token(): url == {}'.format(self.__class__.__name__, self.__enlighten_login_url))
+        try:
+            resp = requests.post(self.__enlighten_login_url, data=data)
+        except Exception as error:
+            print('{}: request to Enphase Enlighten failed for login'.format(self.__class__.__name__))
+            print('{}: error {}'.format(self.__class__.__name__, resp.text))
+            print('{}: {} - {}'.format(type(error).__name__, error))
+            sys.exit(1)
+
+        self.__logger.debug('{}: response {}'.format(self.__class__.__name__, resp.text))
+        resp_data = resp.json()
+
+        self.__logger.debug('resp_data == {}'.format(resp_data))
+
+        # get token second
+        data = {'session_id': resp_data['session_id'], 'serial_num': self.__envoy_serial_number, 'username': self.__enlighten_username}
+        self.__logger.debug('{}:__obtain_token(): data == {}'.format(self.__class__.__name__, data))
+        try:
+            resp = requests.post(self.__entrez_url, json=data)
+        except Exception as error:
+            print('{}: request to Entrez failed for token'.format(self.__class__.__name__))
+            print('{}: {} - {}'.format(type(error).__name__, error))
+            sys.exit(1)
+
+        self.__logger.debug('resp.ok == {}'.format(resp.ok))
+        self.__logger.debug('resp.status_code == {}'.format(resp.status_code))
+        self.__logger.debug('token generated {}'.format(resp.text))
+
+        # store the token in a file to use next time
+        with open(self.__token_file, 'w') as ofp:
+            ofp.write(resp.text)
+
+        return resp.text
 
     def getProductionData(self):
         try:
             resp = requests.get(f'https://{self.__envoy_host}/production.json', timeout=(self.__connection_timeout, self.__read_timeout), verify=False, headers=self.__authorisation_header)
-        except requests.exceptions.HTTPError:
-            if resp.status_code == 401:
-                self.__obtain_token(refresh = True)
-                # Try to get the data again
-                try:
-                    resp = requests.get(f'https://{self.__envoy_host}/production.json', timeout=(self.__connection_timeout, self.__read_timeout), verify=False, headers=self.__authorisation_header)
-                except:
-                    pass
-                raise
         except Exception as error:
             print('{}: request to Envoy failed for production data'.format(self.__class__.__name__))
             print('{}: {} - {}'.format(type(error).__name__, error))
