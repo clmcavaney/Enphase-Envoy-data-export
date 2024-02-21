@@ -160,3 +160,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+data/enphase-envoy-data-export.csv
+data/enphase-envoy-data-export.log
+data/token-file.txt
+resources/4962530_custom_report.csv
+enphase-envoy.conf
+outputs/__pycache__/*
+homie_enphase_envoy/__pycache__/*
