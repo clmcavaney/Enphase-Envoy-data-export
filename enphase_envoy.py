@@ -141,9 +141,10 @@ class EnphaseEnvoy:
             self.__logger.debug('{}:__obtain_token(): url == {}'.format(self.__class__.__name__, self.__enlighten_login_url))
             try:
                 resp = requests.post(self.__enlighten_login_url, data=data)
-            except:
+            except Exception as error:
                 print('{}: request to Enphase Enlighten failed for login'.format(self.__class__.__name__))
                 print('{}: error {}'.format(self.__class__.__name__, resp.text))
+                print('{}: {} - {}'.format(type(error).__name__, error))
                 sys.exit(1)
 
             self.__logger.debug('{}: response {}'.format(self.__class__.__name__, resp.text))
@@ -156,8 +157,9 @@ class EnphaseEnvoy:
             self.__logger.debug('{}:__obtain_token(): data == {}'.format(self.__class__.__name__, data))
             try:
                 resp = requests.post(self.__entrez_url, json=data)
-            except:
+            except Exception as error:
                 print('{}: request to Entrez failed for token'.format(self.__class__.__name__))
+                print('{}: {} - {}'.format(type(error).__name__, error))
                 sys.exit(1)
 
             self.__logger.debug('resp.ok == {}'.format(resp.ok))
@@ -195,8 +197,9 @@ class EnphaseEnvoy:
                 except:
                     pass
                 raise
-        except:
+        except Exception as error:
             print('{}: request to Envoy failed for production data'.format(self.__class__.__name__))
+            print('{}: {} - {}'.format(type(error).__name__, error))
             sys.exit(1)
 
 
