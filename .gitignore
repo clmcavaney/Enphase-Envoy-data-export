@@ -1,0 +1,6 @@
+data/enphase-envoy-data-export.csv
+data/enphase-envoy-data-export.log
+data/token-file.txt
+resources/4962530_custom_report.csv
+enphase-envoy.conf
+__pycache__
