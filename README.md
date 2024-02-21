@@ -16,5 +16,7 @@ Outputs can be:
 
 
 ## Acknowledgements
+
 Wouter (https://github.com/Woutrrr) for https://github.com/Woutrrr/Omnik-Data-Logger
+
 Will Hart (https://gist.github.com/will-hart | https://willhart.io/) for the Python Plugin Class - https://gist.github.com/will-hart/5899567
