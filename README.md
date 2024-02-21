@@ -19,6 +19,32 @@ Outputs can be:
 **Note:** The MQTT output requires an additional library (which has been included) called `enphase_envoy_homie`.  This is an implementation of MQTT Device under the Homie IoT convention (see https://homieiot.github.io/ for more details).
 
 
+## Installation and Setup
+
+1. Clone this repository
+```
+git clone https://github.com/clmcavaney/Enphase-Envoy-data-export.git
+```
+
+2. Copy the config example to `enphase-envoy.conf`
+```
+$ cp enphase-envoy-example.conf enphase-envoy.conf
+```
+
+3. Change the settings in `enphase-config.conf`
+
+4. Test your settings with `scripts/live-stats.py`
+If successful, you should see data from your Envoy
+```
+$ ./scripts/live-stats.py
+```
+
+5. Run the script with `scripts/enphase-envoy-data-extract.py`
+```
+$ ./scripts/enphase-envoy-data-extract.py
+```
+
+
 ## Acknowledgements
 
 Wouter (https://github.com/Woutrrr) for https://github.com/Woutrrr/Omnik-Data-Logger
