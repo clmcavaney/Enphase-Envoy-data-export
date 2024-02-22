@@ -16,7 +16,8 @@ class EnphaseEnvoy:
     # - setters
     # - getters
 
-    def __init__(self, logger, envoy_host, envoy_serial_number, enlighten_username, enlighten_password, token_file):
+    # timeouts - dict where 'c' == connection timeout, and 'r' == read timeout
+    def __init__(self, logger, envoy_host, envoy_serial_number, enlighten_username, enlighten_password, token_file, timeouts = {'c': 20, 'r': 15}):
         self.__logger = logger
         self.__envoy_host = envoy_host
         self.__envoy_serial_number = envoy_serial_number
@@ -24,8 +25,8 @@ class EnphaseEnvoy:
         self.__enlighten_password = enlighten_password
         self.__token_file = token_file
 
-        self.__connection_timeout = 5
-        self.__read_timeout = 15
+        self.__connection_timeout = timeouts['c']
+        self.__read_timeout = timeouts['r']
         self.__debug = True
 
         self.__enlighten_login_url = 'https://enlighten.enphaseenergy.com/login/login.json'

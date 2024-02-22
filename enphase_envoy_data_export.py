@@ -51,7 +51,8 @@ class EnphaseEnvoyDataExport(object):
         # Thank you Stack Overflow: https://stackoverflow.com/a/32282390/13102734
         requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
-        ee = EnphaseEnvoy(self.logger, envoy_host, envoy_serial_number, enlighten_username, enlighten_password, token_file)
+        timeouts = {'c': self.config.getint("envoy", "c_timeout", fallback=10), 'r': self.config.getint("envoy", "r_timeout", fallback=20)}
+        ee = EnphaseEnvoy(self.logger, envoy_host, envoy_serial_number, enlighten_username, enlighten_password, token_file, timeouts)
         self.logger.debug(ee)
         self.logger.debug(ee.__dict__)
 

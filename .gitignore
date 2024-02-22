@@ -163,7 +163,7 @@ cython_debug/
 data/enphase-envoy-data-export.csv
 data/enphase-envoy-data-export.log
 data/token-file.txt
-resources/4962530_custom_report.csv
+resources/*.csv
 enphase-envoy.conf
 outputs/__pycache__/*
 homie_enphase_envoy/__pycache__/*
