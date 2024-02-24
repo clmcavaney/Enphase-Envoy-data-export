@@ -7,6 +7,7 @@ import os
 import requests
 import datetime
 import jwt
+import time
 
 # need to decide on where to save the token data - /tmp (i.e. empemerally) or a /var location (/var/cache or /home/<username>/var/cache)
 # lets use data/token.txt and look to move it later
@@ -28,6 +29,7 @@ class EnphaseEnvoy:
         self.__connection_timeout = timeouts['c']
         self.__read_timeout = timeouts['r']
         self.__debug = True
+        self.__connection_timeout_production_data = 45
 
         self.__enlighten_login_url = 'https://enlighten.enphaseenergy.com/login/login.json'
 
@@ -215,12 +217,26 @@ class EnphaseEnvoy:
         return resp.text
 
     def getProductionData(self):
-        try:
-            resp = requests.get(f'https://{self.__envoy_host}/production.json', timeout=(self.__connection_timeout, self.__read_timeout), verify=False, headers=self.__authorisation_header)
-        except Exception as error:
-            print('{}: request to Envoy failed for production data'.format(self.__class__.__name__))
-            print('{}: {} - {}'.format(self.__class__.__name__, type(error).__name__, error))
-            sys.exit(1)
+        # This looks messy, but it an attempt to retry the requests.get() if ConnectionErrors occur
+        start_time = time.time()
+        while True:
+            try:
+                resp = requests.get(f'https://{self.__envoy_host}/production.json', timeout=(self.__connection_timeout, self.__read_timeout), verify=False, headers=self.__authorisation_header)
+                break
+            except requests.exceptions.ConnectionError as e:
+                if time.time() > start_time + self.__connection_timeout_production_data:
+                    print('{}: request to Envoy failed for production data'.format(self.__class__.__name__))
+                    print('{}: ConnectionError'.format(self.__class__.__name__))
+                    print('{}: errno:{}'.format(self.__class__.__name__, e.errno))
+                    print('{}: e:{}'.format(self.__class__.__name__, e))
+                    raise Exception('Unable to get data after {} sections of ConnectionErrors'.format(self.__connection_timeout_production_data))
+                    sys.exit(1)
+                else:
+                    time.sleep(1)
+            except Exception as error:
+                print('{}: request to Envoy failed for production data'.format(self.__class__.__name__))
+                print('{}: {} - {}'.format(self.__class__.__name__, type(error).__name__, error))
+                sys.exit(1)
 
 
         self.__logger.debug('resp == {}'.format(resp.json()))
