@@ -160,6 +160,11 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+.DS_Store
+# Thumbnails
+._*
+
+# Project specific
 data/enphase-envoy-data-export.csv
 data/enphase-envoy-data-export.log
 data/token-file.txt
