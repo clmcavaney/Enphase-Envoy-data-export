@@ -19,7 +19,9 @@ class MysqlOutput(PluginLoader.Plugin):
                                   user=self.config.get('mysql', 'user'),
                                   password=self.config.get('mysql', 'pass'),
                                   database=self.config.get('mysql', 'database'),
-                                  cursorclass=pymysql.cursors.DictCursor)
+                                  cursorclass=pymysql.cursors.DictCursor,
+                                  read_timeout=10,
+                                  write_timeout=10)
         except pymysql.Error as e:
             print('error connecting to database')
             print('msg == {}: {}'.format(e.args[0], e.args[1]))
