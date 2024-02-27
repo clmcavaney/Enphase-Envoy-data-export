@@ -229,7 +229,7 @@ class EnphaseEnvoy:
                     print('{}: ConnectionError'.format(self.__class__.__name__))
                     print('{}: errno:{}'.format(self.__class__.__name__, e.errno))
                     print('{}: e:{}'.format(self.__class__.__name__, e))
-                    raise Exception('Unable to get data after {} sections of ConnectionErrors'.format(self.__connection_timeout_production_data))
+                    raise Exception('Unable to get data after {} seconds of ConnectionErrors'.format(self.__connection_timeout_production_data))
                     sys.exit(1)
                 else:
                     time.sleep(1)
