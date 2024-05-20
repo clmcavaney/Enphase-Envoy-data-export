@@ -40,7 +40,12 @@ class PVoutputOutput(PluginLoader.Plugin):
                 self.logger.info('DRY RUN: request.get({}, params={})'.format(url, get_data))
                 response = 'DRY RUN'
             else:
-                response = requests.get(url, params=get_data)
+                try:
+                    response = requests.get(url, params=get_data)
+                except requests.exceptions.ConnectTimeout as e:
+                    print('error connecting to pvoutput.org')
+                    print('msg == {}: {}'.format(e.args[0], e.args[1]))
+                    return
 
             self.logger.debug('response: {}'.format(response))  # Log the response
             # allows the dry run case to be handled
