@@ -47,6 +47,9 @@ class PVoutputOutput(PluginLoader.Plugin):
                     print('msg == {}: {}'.format(e.args[0], e.args[1]))
                     return
 
+                if response.ok is False:
+                    self.logger.warning('HTTP GET request to PVOutput.org responses with {} ({})'.format(response.status_code, response.reason))
+
             self.logger.debug('response: {}'.format(response))  # Log the response
             # allows the dry run case to be handled
             if hasattr(response, 'text'):
